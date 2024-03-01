@@ -1,0 +1,65 @@
+version: '3'
+
+x-common-configs: &airflow-configs
+  image: apache/airflow:2.8.2
+  env_file:
+    - .env
+  volumes:
+    - ./dags:/opt/airflow/dags
+    - ./scripts:/opt/airflow/scripts
+    - airflow-logs-volume:/opt/airflow/logs
+    - airflow-plugins-volume:/opt/airflow/plugins
+  networks:
+    - airflow-tutorial-network
+
+services:
+  
+  postgres:
+    image: postgres:15
+    container_name: at-postgres
+    ports:
+      - "5432:5432"
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 5s
+      retries: 5
+    networks:
+      - airflow-tutorial-network
+
+  airflow-webserver:
+    <<: *airflow-configs
+    container_name: at-airflow-webserver
+    command: webserver
+    entrypoint: ./scripts/entrypoint.sh
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+    ports:
+      - "8080:8080"
+
+  airflow-scheduler:
+    <<: *airflow-configs
+    container_name: at-airflow-scheduler
+    command: scheduler
+    depends_on:
+      postgres:
+        condition: service_healthy
+      airflow-webserver:
+        condition: service_healthy
+    ports:
+      - "8793:8793"
+
+volumes:
+  airflow-logs-volume:
+  airflow-plugins-volume:
+
+networks:
+  airflow-tutorial-network:
+    driver: bridge
