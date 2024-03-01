@@ -12,9 +12,11 @@ Além disso, temos também os arquivos:
 - Pasta `dags`: Aqui é onde vamos colocar todos os nossos DAGs no futuro
 
 ## Como criar o ambiente de desenvolvimento
-Uma vez que se tenha o Docker e o Docker Compose instalado, basta executar o comando abaixo para subir os containers:
+Uma vez que se tenha o Docker e o Docker Compose instalado, basta executar os comandos abaixo:
 
-`docker-compose up -d` (ou `docker compose up -d`, dependendo da versão do seu Docker Compose)
+`chmod +x ./scripts/entrypoint.sh` -> para dar permissão para o arquivo ser executado dentro do container
+
+`docker-compose up -d` (ou `docker compose up -d`, dependendo da versão do seu Docker Compose) -> para criar o ambiente
 
 ## Como pausar / despausar o ambiente de desenvolvimento
 Se você quiser pausar o ambiente, ou seja, parar os containers mas não perder as configurações de variáveis / conexões criadas por exemplo, é só executar o comando abaixo:
